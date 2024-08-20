@@ -3,13 +3,15 @@ from api.hh_api import HeadHunterAPI
 from vacancies.vacancy import Vacancy
 from file_handlers.file_handler import JSONFileHandler
 
-
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 
 def user_interaction():
+    """
+    Функция для взаимодействия с пользователем через консоль.
+    """
     hh_api = HeadHunterAPI()
     file_handler = JSONFileHandler()
 
@@ -23,7 +25,7 @@ def user_interaction():
         choice = input("Выбери пункт меню: ")
 
         if choice == "1":
-            keyword = input("Enter search keyword: ")
+            keyword = input("Введите ключевое слово для поиска: ")
             try:
                 vacancies_data = hh_api.get_vacancies(keyword)
                 vacancies = []
@@ -38,42 +40,46 @@ def user_interaction():
                         vacancies.append(vacancy)
                         file_handler.add_vacancy(vacancy.to_dict())
                     except Exception as e:
-                        logging.error(f"Error processing vacancy: {e}")
-                print(f"Found and saved {len(vacancies)} vacancies")
+                        logging.error(f"Ошибка при обработке вакансии: {e}")
+                print(f"Найдено и сохранено {len(vacancies)} вакансий")
             except Exception as e:
-                logging.error(f"An error occurred: {e}")
+                logging.error(f"Произошла ошибка: {e}")
 
         elif choice == "2":
             vacancies = file_handler.get_vacancies()
             if not vacancies:
-                print("No vacancies found. Please search for vacancies first.")
+                print(
+                    "Вакансии не найдены. Пожалуйста, выполните поиск вакансий сначала."
+                )
                 continue
             try:
-                n = int(input("Enter number of top vacancies to show: "))
-                logging.debug(f"Loading {len(vacancies)} vacancies from file")
+                n = int(input("Введите количество топ вакансий для показа: "))
+                logging.debug(f"Загрузка {len(vacancies)} вакансий из файла")
                 vacancies = [Vacancy.from_dict(v) for v in vacancies]
-                logging.debug(f"Loaded {len(vacancies)} Vacancy objects")
-                logging.debug(f"Sample vacancy: {vacancies[0]}")
-                logging.debug(f"Sample vacancy salary: {vacancies[0].salary}")
+                logging.debug(f"Загружено {len(vacancies)} объектов Vacancy")
+                logging.debug(f"Пример вакансии: {vacancies[0]}")
+                logging.debug(f"Пример зарплаты вакансии: {vacancies[0].salary}")
                 logging.debug(
-                    f"Sample vacancy numeric salary: {vacancies[0]._get_numeric_salary()}"
+                    f"Числовая зарплата вакансии: {vacancies[0]._get_numeric_salary()}"
                 )
                 top_vacancies = sorted(vacancies, reverse=True)[:n]
-                logging.debug(f"Sorted vacancies, showing top {n}")
+                logging.debug(f"Сортировка вакансий, показ топ {n}")
                 for vacancy in top_vacancies:
                     print(vacancy)
             except ValueError as e:
-                logging.error(f"Invalid input: {e}")
-                print("Please enter a valid number.")
+                logging.error(f"Некорректный ввод: {e}")
+                print("Пожалуйста, введите корректное число.")
             except Exception as e:
-                logging.error(f"An error occurred: {e}", exc_info=True)
+                logging.error(f"Произошла ошибка: {e}", exc_info=True)
 
         elif choice == "3":
             vacancies = file_handler.get_vacancies()
             if not vacancies:
-                print("No vacancies found. Please search for vacancies first.")
+                print(
+                    "Вакансии не найдены. Пожалуйста, выполните поиск вакансий сначала."
+                )
                 continue
-            keyword = input("Enter keyword to filter vacancies: ")
+            keyword = input("Введите ключевое слово для фильтрации вакансий: ")
             vacancies = [Vacancy.from_dict(v) for v in vacancies]
             filtered_vacancies = [
                 v for v in vacancies if keyword.lower() in v.description.lower()
@@ -82,16 +88,18 @@ def user_interaction():
                 for vacancy in filtered_vacancies:
                     print(vacancy)
             else:
-                print("No vacancies found matching the keyword.")
+                print("Вакансии, соответствующие ключевому слову, не найдены.")
 
         elif choice == "4":
             vacancies = file_handler.get_vacancies()
             if not vacancies:
-                print("No vacancies found. Please search for vacancies first.")
+                print(
+                    "Вакансии не найдены. Пожалуйста, выполните поиск вакансий сначала."
+                )
                 continue
             try:
-                min_salary = int(input("Enter minimum salary: "))
-                max_salary = int(input("Enter maximum salary: "))
+                min_salary = int(input("Введите минимальную зарплату: "))
+                max_salary = int(input("Введите максимальную зарплату: "))
                 vacancies = [Vacancy.from_dict(v) for v in vacancies]
                 filtered_vacancies = [
                     v
@@ -102,19 +110,21 @@ def user_interaction():
                     for vacancy in filtered_vacancies:
                         print(vacancy)
                 else:
-                    print("No vacancies found in the specified salary range.")
+                    print("Вакансии в указанном диапазоне зарплаты не найдены.")
             except ValueError:
-                print("Please enter valid numbers for salary range.")
+                print("Пожалуйста, введите корректные числа для диапазона зарплаты.")
 
         elif choice == "5":
             vacancies = file_handler.get_vacancies()
             if not vacancies:
-                print("No vacancies found. Please search for vacancies first.")
+                print(
+                    "Вакансии не найдены. Пожалуйста, выполните поиск вакансий сначала."
+                )
                 continue
             show_statistics(vacancies)
 
         elif choice == "6":
-            print("Thank you for using the program. Goodbye!")
+            print("Спасибо за использование программы. До свидания!")
             break
 
         else:
@@ -122,6 +132,12 @@ def user_interaction():
 
 
 def show_statistics(vacancies):
+    """
+    Показать статистику по вакансиям.
+
+    Аргументы:
+        vacancies (List[Dict[str, Any]]): Список вакансий для анализа.
+    """
     total_vacancies = len(vacancies)
     salaries = [v["salary"] for v in vacancies if v["salary"] != "Salary not specified"]
     avg_salary = (
