@@ -2,7 +2,7 @@ import logging
 from src.api.hh_api import HeadHunterAPI
 from src.vacancies.vacancy import Vacancy
 from src.file_handlers.file_handler import JSONFileHandler
-from typing import List, Dict, Optional
+from typing import List
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -28,26 +28,33 @@ def filter_vacancies(vacancies, filter_words):
 
 
 def get_vacancies_by_salary(
-    vacancies: List["Vacancy"], salary_range: str
-) -> List["Vacancy"]:
-    if not salary_range.strip():  # Проверяем, пустой ли диапазон зарплат
-        return vacancies
+    vacancies: List[Vacancy], salary_range: str
+) -> List[Vacancy]:
+    if not salary_range.strip():
+        return []
 
     try:
         min_salary, max_salary = map(int, salary_range.split("-"))
     except ValueError:
         print("Некорректный формат диапазона зарплат.")
-        return vacancies
+        return []
 
-    filtered_vacancies = [
-        vacancy
-        for vacancy in vacancies
-        if (
-            vacancy._get_numeric_salary() is not None
-            and min_salary <= vacancy._get_numeric_salary() <= max_salary
-        )
-    ]
-    return filtered_vacancies
+    def salary_in_range(salary):
+        if not salary:
+            return False
+        salary_from = salary.get("from")
+        salary_to = salary.get("to")
+
+        if salary_from is None and salary_to is None:
+            return False
+        if salary_from is None:
+            return salary_to >= min_salary
+        if salary_to is None:
+            return salary_from <= max_salary
+
+        return salary_from <= max_salary and salary_to >= min_salary
+
+    return [v for v in vacancies if salary_in_range(v.salary)]
 
 
 def sort_vacancies(vacancies):
@@ -93,8 +100,9 @@ def print_vacancies(vacancies):
 def user_interaction():
     # Initialize the API instance
     api = HeadHunterAPI()
+    json_handler = JSONFileHandler()
 
-    platforms = ["HeadHunter"]
+    # platforms = ["HeadHunter"]
     search_query = input("Введите поисковый запрос: ")
     top_n = int(input("Введите количество вакансий для вывода в топ N: "))
     filter_words = input("Введите ключевые слова для фильтрации вакансий: ").split()
@@ -110,6 +118,8 @@ def user_interaction():
     ranged_vacancies = get_vacancies_by_salary(filtered_vacancies, salary_range)
     sorted_vacancies = sort_vacancies(ranged_vacancies)
     top_vacancies = get_top_vacancies(sorted_vacancies, top_n)
+
+    json_handler.add_vacancy(top_vacancies)
     print_vacancies(top_vacancies)
 
 
