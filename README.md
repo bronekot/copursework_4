@@ -12,8 +12,8 @@
 1. Клонируйте репозиторий:
 
    ```
-   git clone https://github.com/your-username/job-vacancy-analyzer.git
-   cd job-vacancy-analyzer
+   git clone https://github.com/bronekot/copursework_4
+   cd copursework_4
    ```
 2. Создайте виртуальное окружение и активируйте его:
 
