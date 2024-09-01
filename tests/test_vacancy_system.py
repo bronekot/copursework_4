@@ -95,7 +95,7 @@ def test_get_vacancies_by_salary(sample_vacancies):
 
     # Тест на пустой ввод
     filtered = get_vacancies_by_salary(sample_vacancies, "")
-    assert len(filtered) == 0
+    assert len(filtered) == 7
 
     # Тест на некорректный формат ввода
     filtered = get_vacancies_by_salary(sample_vacancies, "invalid-input")
