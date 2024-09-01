@@ -31,10 +31,16 @@ def get_vacancies_by_salary(
     vacancies: List[Vacancy], salary_range: str
 ) -> List[Vacancy]:
     if not salary_range.strip():
-        return []
+        return vacancies
 
     try:
-        min_salary, max_salary = map(int, salary_range.split("-"))
+        parts = salary_range.split("-")
+        if len(parts) == 2:
+            min_salary, max_salary = map(int, parts)
+        elif len(parts) == 1:
+            min_salary = max_salary = int(parts[0])
+        else:
+            raise ValueError
     except ValueError:
         print("Некорректный формат диапазона зарплат.")
         return []

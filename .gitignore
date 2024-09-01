@@ -4,3 +4,4 @@ vacancies.json
 .cpython
 .pyc
 __pycache__
+/venv
