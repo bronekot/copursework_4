@@ -59,11 +59,12 @@ class AbstractFileHandler(ABC):
         pass
 
     @abstractmethod
-    def delete_vacancy(self, vacancy: Dict[str, Any]) -> None:
+    def delete_vacancy(self, name: str, url: str) -> None:
         """
         Удалить вакансию из файла.
 
         Аргументы:
-            vacancy (Dict[str, Any]): Вакансия для удаления.
+            name (str): Имя вакансии.
+            url (str): URL вакансии.
         """
         pass
